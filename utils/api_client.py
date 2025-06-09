@@ -74,5 +74,14 @@ class TrackerApiClient:
                 if link.get("object", {}).get("key") == related_issue_key:
                     return str(link.get("id"))
         return None
+    def get_global_fields(self, params: dict = None) -> requests.Response:
+        url = f"{self.base_url}/fields"
+        return requests.get(url, headers=self.headers, params=params)
+
+    def create_issue_field(self, payload: dict) -> requests.Response:
+        url = f"{self.base_url}/fields"
+        return requests.post(url, headers=self.headers, json=payload)
+
+
 
 
