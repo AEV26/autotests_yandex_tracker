@@ -292,3 +292,163 @@ def create_issue_with_image_attachment(api_client):
     yield issue_id, attachment["id"]
 
     api_client.delete_issue(Config.OAUTH_TOKEN, issue_id)
+
+@pytest.fixture
+def current_user_info(api_client):
+    response = api_client.get_myself(Config.OAUTH_TOKEN)
+    assert response.status_code == 200
+    return response.json()
+
+@pytest.fixture
+def testn_project_id():
+    return Config.TESTN_PROJECT_ID
+
+@pytest.fixture
+def valid_project_comment_data():
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    return {
+        "text": f"Test project comment {timestamp}",
+        "summonees": []
+    }
+
+@pytest.fixture
+def create_project_comment(api_client, testn_project_id, valid_project_comment_data):
+    response = api_client.add_entity_comment(
+        Config.OAUTH_TOKEN,
+        "project",
+        testn_project_id,
+        valid_project_comment_data
+    )
+    assert response.status_code == 201
+    comment = response.json()
+    yield testn_project_id, comment["id"]
+
+
+@pytest.fixture
+def create_project_comment_for_editing(api_client, testn_project_id):
+    comment_data = {
+        "text": "Original comment text for editing",
+        "summonees": []
+    }
+
+    response = api_client.add_entity_comment(
+        Config.OAUTH_TOKEN,
+        "project",
+        testn_project_id,
+        comment_data
+    )
+    assert response.status_code in [200, 201]
+    comment = response.json()
+
+    yield testn_project_id, comment["id"], comment
+
+@pytest.fixture
+def updated_comment_data():
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    return {
+        "text": f"Updated comment text {timestamp}",
+        "summonees": []
+    }
+
+
+@pytest.fixture
+def project_with_comments(api_client, testn_project_id):
+    comment_ids = []
+
+    for i in range(3):
+        comment_data = {
+            "text": f"Test comment {i} for getting comments",
+            "summonees": []
+        }
+
+        response = api_client.add_entity_comment(
+            Config.OAUTH_TOKEN,
+            "project",
+            testn_project_id,
+            comment_data
+        )
+        assert response.status_code in [200, 201]
+        comment = response.json()
+        comment_ids.append(comment["id"])
+
+    yield testn_project_id, comment_ids
+
+@pytest.fixture
+def project_with_single_comment(api_client, testn_project_id):
+    comment_data = {
+        "text": "Single test comment for getting",
+        "summonees": []
+    }
+
+    response = api_client.add_entity_comment(
+        Config.OAUTH_TOKEN,
+        "project",
+        testn_project_id,
+        comment_data
+    )
+    assert response.status_code in [200, 201]
+    comment = response.json()
+
+    yield testn_project_id, comment["id"], comment
+
+@pytest.fixture
+def create_comment_for_deletion(api_client, testn_project_id):
+    comment_data = {
+        "text": "Comment to be deleted in test",
+        "summonees": []
+    }
+
+    response = api_client.add_entity_comment(
+        Config.OAUTH_TOKEN,
+        "project",
+        testn_project_id,
+        comment_data
+    )
+    assert response.status_code in [200, 201]
+    comment = response.json()
+
+    yield testn_project_id, comment["id"]
+
+    try:
+        api_client.delete_entity_comment(
+            Config.OAUTH_TOKEN,
+            "project",
+            testn_project_id,
+            comment["id"]
+        )
+    except:
+        pass
+
+
+@pytest.fixture
+def create_multiple_comments_for_deletion(api_client, testn_project_id):
+    comment_ids = []
+
+    for i in range(3):
+        comment_data = {
+            "text": f"Comment {i} to be deleted in test",
+            "summonees": []
+        }
+
+        response = api_client.add_entity_comment(
+            Config.OAUTH_TOKEN,
+            "project",
+            testn_project_id,
+            comment_data
+        )
+        assert response.status_code in [200, 201]
+        comment = response.json()
+        comment_ids.append(comment["id"])
+
+    yield testn_project_id, comment_ids
+
+    for comment_id in comment_ids:
+        try:
+            api_client.delete_entity_comment(
+                Config.OAUTH_TOKEN,
+                "project",
+                testn_project_id,
+                comment_id
+            )
+        except:
+            pass
