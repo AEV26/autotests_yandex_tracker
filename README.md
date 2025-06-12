@@ -1,1 +1,1 @@
-## Course Paper for HSE
+## Autotests for the Yandex Tracker API
