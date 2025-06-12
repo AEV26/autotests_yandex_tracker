@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": { "type": "string" },
+      "self": { "type": "string", "format": "uri" },
+      "issue": {
+        "type": "object",
+        "properties": {
+          "self": { "type": "string", "format": "uri" },
+          "id": { "type": "string" },
+          "key": { "type": "string" },
+          "display": { "type": "string" }
+        },
+        "required": ["self", "id", "key", "display"]
+      },
+      "updatedAt": { "type": "string", "format": "date-time" },
+      "updatedBy": {
+        "type": "object",
+        "properties": {
+          "self": { "type": "string", "format": "uri" },
+          "id": { "type": "string" },
+          "display": { "type": "string" },
+          "cloudUid": { "type": "string" },
+          "passportUid": { "type": "integer" }
+        },
+        "required": ["self", "id", "display"]
+      },
+      "type": { "type": "string" },
+      "transport": { "type": "string" },
+      "fields": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "object",
+              "properties": {
+                "self": { "type": "string", "format": "uri" },
+                "id": { "type": "string" },
+                "display": { "type": "string" }
+              },
+              "required": ["self", "id", "display"]
+            },
+            "from": { "type": ["string", "null"] },
+            "to": {
+              "type": ["object", "null"],
+              "properties": {
+                "self": { "type": "string", "format": "uri" },
+                "id": { "type": "string" },
+                "key": { "type": "string" },
+                "display": { "type": "string" }
+              },
+              "required": ["self", "id", "key", "display"]
+            }
+          },
+          "required": ["field", "from", "to"]
+        }
+      }
+    },
+    "required": ["id", "issue", "updatedAt", "updatedBy", "type", "fields"]
+  }
+}
